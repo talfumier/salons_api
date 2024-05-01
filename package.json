@@ -1,0 +1,38 @@
+{
+  "name": "easyloc_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "build": "npm run config && npm install",
+    "config": "node src/config/generate-env.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talfumier/easyloc_api.git"
+  },
+  "author": "Henri TALFUMIER",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/talfumier/easyloc_api/issues"
+  },
+  "homepage": "https://github.com/talfumier/easyloc_api#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "api-query-params": "^5.4.0",
+    "date-fns": "^3.6.0",
+    "express": "^4.19.2",
+    "joi": "^17.12.3",
+    "sequelize": "^6.37.3",
+    "tedious": "^18.1.0"
+  },
+  "engines": {
+    "node": "20.12.2"
+  }
+}

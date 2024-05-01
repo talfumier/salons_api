@@ -1,0 +1,127 @@
+### CUSTOMERS
+GET http://localhost:8000/api/customers
+###
+GET http://localhost:8000/api/customers?first_name=/^henrI$/i&sort=-last_name
+###
+POST http://localhost:8000/api/customers
+content-type: application/json
+
+{
+  "first_name":"xxxx", 
+  "last_name":"yyyyyy",
+  "address":"zzzzzz",
+  "permit_number":"4aaaaa"
+}
+###
+PATCH http://localhost:8000/api/customers/66212a1b33d48a71897191f6
+content-type: application/json
+
+{
+  "first_name":"Henri4", 
+  "last_name":"TALFUMIER15"
+}
+###
+GET http://localhost:8000/api/customers/TALFuMIER/henri
+###
+DELETE http://localhost:8000/api/customers/662129de0824fcaf827b2209
+
+### VEHICLES
+GET http://localhost:8000/api/vehicles
+###
+GET http://localhost:8000/api/vehicles?km<=86000&km>=16000&sort=km
+###
+POST http://localhost:8000/api/vehicles
+content-type: application/json
+
+{
+  "licence_plate":"FD-600-MG", 
+  "km":16000
+}
+###
+PATCH http://localhost:8000/api/vehicles/66218e95ceda8fadd616cbae
+content-tyspe: application/json
+
+{
+  "km":12000
+}
+###
+GET http://localhost:8000/api/vehicles/fd-596-mg
+###
+DELETE http://localhost:8000/api/vehicles/662202ef7ed37b09edce3f4e
+
+### CONTRACTS
+GET http://localhost:8000/api/contracts
+###
+GET http://localhost:8000/api/contracts?customer_id=662129de0824fcaf827b2209&sort=price
+###
+POST http://localhost:8000/api/contracts
+content-type: application/json
+
+{
+  "vehicle_id":"662202ef7ed37b09edce3f4e", 
+  "customer_id":"662129de0824fcaf827b2209",
+  "loc_begin_datetime":"2024-04-19 18:50:00",
+  "loc_end_datetime":"2024-04-21 10:00:00",
+  "price":12  
+}
+###
+DELETE http://localhost:8000/api/contracts/5
+###
+PATCH http://localhost:8000/api/contracts/6
+content-type: application/json
+
+{
+  "vehicle_id":"66218e95ceda8fadd616cbae",
+  "customer_id":"662129de0824fcaf827b2209",
+  "price":250
+}
+
+### BILLINGS
+GET http://localhost:8000/api/billings
+###
+POST http://localhost:8000/api/billings
+content-type: application/json
+
+{
+  "contract_id":7, 
+  "amount":500 
+}
+###
+DELETE http://localhost:8000/api/billings/4
+###
+PATCH http://localhost:8000/api/billings/5
+content-type: application/json
+
+{
+  "contract_id":5
+}
+
+###SEARCH
+GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&status=ongoing
+###
+GET http://localhost:8000/api/contracts/search/queryparams
+###
+GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&status=completed
+###
+GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&status=late
+###
+GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&vehicle_id=662202ef7ed37b09edce3f4e
+###
+GET http://localhost:8000/api/contracts/search/delays?date1=2024/04/19&date2=2024/04/23
+
+
+###GROUP BY
+GET http://localhost:8000/api/contracts/search/groupby/customer
+###
+GET http://localhost:8000/api/contracts/search/groupby/vehicle
+###
+GET http://localhost:8000/api/contracts/search/groupby/delay/customer
+###
+GET http://localhost:8000/api/contracts/search/groupby/delay/vehicle
+
+###
+GET http://localhost:8000/api/billings/search/queryparams?contract_id=7
+###
+GET http://localhost:8000/api/billings/search/groupby/contract
+###
+GET http://localhost:8000/api/billings/search/groupby/contract?payment=settled
