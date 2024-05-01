@@ -26,9 +26,11 @@
   },
   "dependencies": {
     "api-query-params": "^5.4.0",
+    "axios": "^1.6.8",
     "date-fns": "^3.6.0",
     "express": "^4.19.2",
     "joi": "^17.12.3",
+    "joi-password": "^4.2.0",
     "sequelize": "^6.37.3",
     "tedious": "^18.1.0"
   },

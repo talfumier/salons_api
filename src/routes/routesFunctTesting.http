@@ -1,127 +1,79 @@
-### CUSTOMERS
-GET http://localhost:8000/api/customers
+### SALONS
+GET http://localhost:8000/api/salons
 ###
-GET http://localhost:8000/api/customers?first_name=/^henrI$/i&sort=-last_name
+GET http://localhost:8000/api/salons/5
 ###
-POST http://localhost:8000/api/customers
+POST http://localhost:8000/api/salons
 content-type: application/json
 
 {
-  "first_name":"xxxx", 
-  "last_name":"yyyyyy",
-  "address":"zzzzzz",
-  "permit_number":"4aaaaa"
+  "name_salon":"xxxx", 
+  "address":"4, impasse du pigeonnier",
+  "city":"Paris",
+  "zip":"75310",
+  "dept_id":"75",
+  "date_open":"2024-04-20"
 }
 ###
-PATCH http://localhost:8000/api/customers/66212a1b33d48a71897191f6
+PATCH http://localhost:8000/api/salons/5
 content-type: application/json
 
 {
-  "first_name":"Henri4", 
-  "last_name":"TALFUMIER15"
+  "name_salon":"Beauty salon", 
+  "dept_id":"31A"
 }
 ###
-GET http://localhost:8000/api/customers/TALFuMIER/henri
-###
-DELETE http://localhost:8000/api/customers/662129de0824fcaf827b2209
+DELETE http://localhost:8000/api/salons/4
 
-### VEHICLES
-GET http://localhost:8000/api/vehicles
+### REPORTS
+GET http://localhost:8000/api/reports
 ###
-GET http://localhost:8000/api/vehicles?km<=86000&km>=16000&sort=km
+GET http://localhost:8000/api/reports/2
 ###
-POST http://localhost:8000/api/vehicles
+POST http://localhost:8000/api/reports
+content-type: application/json
+
+{  
+  "salon_id":5,
+  "period":"2024-03-18", 
+  "nb_etp":2.56,
+  "turn_around":55002.36
+}
+###
+PATCH http://localhost:8000/api/reports/8
 content-type: application/json
 
 {
-  "licence_plate":"FD-600-MG", 
-  "km":16000
+ "nb_etp":2.5,
+  "turn_around":25658.2,
+  "salon_id":55
 }
 ###
-PATCH http://localhost:8000/api/vehicles/66218e95ceda8fadd616cbae
-content-tyspe: application/json
+DELETE http://localhost:8000/api/reports/9
 
-{
-  "km":12000
+### USERS
+GET http://localhost:8000/api/users
+###
+GET http://localhost:8000/api/users/2
+###
+POST http://localhost:8000/api/users
+content-type: application/json
+
+{  
+  "salon_id":5,
+  "last_name":"MARTINEZ",  
+  "first_name":"Henri",
+  "email":"xxxxx@xx.com",
+  "pwd":"1234H67£"
 }
 ###
-GET http://localhost:8000/api/vehicles/fd-596-mg
-###
-DELETE http://localhost:8000/api/vehicles/662202ef7ed37b09edce3f4e
-
-### CONTRACTS
-GET http://localhost:8000/api/contracts
-###
-GET http://localhost:8000/api/contracts?customer_id=662129de0824fcaf827b2209&sort=price
-###
-POST http://localhost:8000/api/contracts
+PATCH http://localhost:8000/api/users/1
 content-type: application/json
 
 {
-  "vehicle_id":"662202ef7ed37b09edce3f4e", 
-  "customer_id":"662129de0824fcaf827b2209",
-  "loc_begin_datetime":"2024-04-19 18:50:00",
-  "loc_end_datetime":"2024-04-21 10:00:00",
-  "price":12  
+ "email":"henri@xx.com",
+ "salon_id":55
 }
 ###
-DELETE http://localhost:8000/api/contracts/5
-###
-PATCH http://localhost:8000/api/contracts/6
-content-type: application/json
+DELETE http://localhost:8000/api/users/2
 
-{
-  "vehicle_id":"66218e95ceda8fadd616cbae",
-  "customer_id":"662129de0824fcaf827b2209",
-  "price":250
-}
-
-### BILLINGS
-GET http://localhost:8000/api/billings
-###
-POST http://localhost:8000/api/billings
-content-type: application/json
-
-{
-  "contract_id":7, 
-  "amount":500 
-}
-###
-DELETE http://localhost:8000/api/billings/4
-###
-PATCH http://localhost:8000/api/billings/5
-content-type: application/json
-
-{
-  "contract_id":5
-}
-
-###SEARCH
-GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&status=ongoing
-###
-GET http://localhost:8000/api/contracts/search/queryparams
-###
-GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&status=completed
-###
-GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&status=late
-###
-GET http://localhost:8000/api/contracts/search/queryparams?customer_id=662129de0824fcaf827b2209&vehicle_id=662202ef7ed37b09edce3f4e
-###
-GET http://localhost:8000/api/contracts/search/delays?date1=2024/04/19&date2=2024/04/23
-
-
-###GROUP BY
-GET http://localhost:8000/api/contracts/search/groupby/customer
-###
-GET http://localhost:8000/api/contracts/search/groupby/vehicle
-###
-GET http://localhost:8000/api/contracts/search/groupby/delay/customer
-###
-GET http://localhost:8000/api/contracts/search/groupby/delay/vehicle
-
-###
-GET http://localhost:8000/api/billings/search/queryparams?contract_id=7
-###
-GET http://localhost:8000/api/billings/search/groupby/contract
-###
-GET http://localhost:8000/api/billings/search/groupby/contract?payment=settled

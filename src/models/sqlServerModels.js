@@ -1,6 +1,6 @@
 import {DataTypes} from "sequelize";
 import Joi from "joi";
-import {addHours, differenceInMinutes} from "date-fns";
+import {joiPasswordExtendCore} from "joi-password";
 import {joiSubSchema} from "./validation/joiUtilityFunctions.js";
 
 let models = {Salon: null, User: null, Report: null, connection: null};
@@ -18,6 +18,7 @@ export function defineSqlServerModels(sqlServerConnection) {
     date_open: {
       type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.DATE.NOW,
     },
   });
   const User = sqlServerConnection.define("users", {
@@ -26,23 +27,22 @@ export function defineSqlServerModels(sqlServerConnection) {
     last_name: {type: DataTypes.STRING, allowNull: false},
     first_name: {type: DataTypes.STRING, allowNull: false},
     email: {type: DataTypes.STRING, allowNull: false},
-    role: {type: DataTypes.STRING, allowNull: false, defaultValue: "employee"},
+    role: {type: DataTypes.STRING, defaultValue: "employee"},
     pwd: {type: DataTypes.STRING, allowNull: false},
     last_connection: {
       type: DataTypes.DATE,
-      allowNull: false,
       defaultValue: DataTypes.NOW,
     },
   });
   const Report = sqlServerConnection.define("reports", {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
     period: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     salon_id: {type: DataTypes.INTEGER, allowNull: false},
-    nb_etp: {type: DataTypes.DECIMAL, allowNull: true},
-    turn_around: {type: DataTypes.DECIMAL, allowNull: true},
+    nb_etp: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
+    turn_around: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
   });
   return (models = {Salon, User, Report, connection: sqlServerConnection});
 }
@@ -81,28 +81,30 @@ export function validateSalon(salon, cs = "post") {
   }
 }
 export function validateUser(user, cs = "post") {
+  const joiPassword = Joi.extend(joiPasswordExtendCore);
   let schema = Joi.object({
     salon_id: Joi.number(),
     last_name: Joi.string(),
     first_name: Joi.string(),
-    email: Joi.email(),
+    email: Joi.string().email(),
     role: Joi.string(),
-    pwd: Joi.string(),
+    pwd: joiPassword
+      .string()
+      .min(8)
+      .max(50)
+      .minOfSpecialCharacters(1)
+      .minOfUppercase(1)
+      .minOfNumeric(1)
+      .noWhiteSpaces(),
     last_connection: Joi.date(),
   });
   let required = [];
   switch (cs) {
     case "post":
-      required = [
-        "salon_id",
-        "last_name",
-        "first_name",
-        "email",
-        "role",
-        "pwd",
-      ];
+      required = ["salon_id", "last_name", "first_name", "email", "pwd"];
       schema = schema.fork(required, (field) => field.required());
-      return schema.validate(cont);
+      console.log(user, schema.validate(user));
+      return schema.validate(user);
     case "get":
     case "patch":
       const subSchema = joiSubSchema(schema, Object.keys(user));
@@ -127,7 +129,7 @@ export function validateReport(report, cs = "post") {
     case "post":
       required = ["period", "salon_id", "nb_etp", "turn_around"];
       schema = schema.fork(required, (field) => field.required());
-      return schema.validate(cont);
+      return schema.validate(report);
     case "get":
     case "patch":
       const subSchema = joiSubSchema(schema, Object.keys(report));
