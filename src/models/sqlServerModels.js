@@ -27,7 +27,10 @@ export function defineSqlServerModels(sqlServerConnection) {
     last_name: {type: DataTypes.STRING, allowNull: false},
     first_name: {type: DataTypes.STRING, allowNull: false},
     email: {type: DataTypes.STRING, allowNull: false},
-    role: {type: DataTypes.STRING, defaultValue: "employee"},
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     pwd: {type: DataTypes.STRING, allowNull: false},
     last_connection: {
       type: DataTypes.DATE,
@@ -87,11 +90,11 @@ export function validateUser(user, cs = "post") {
     last_name: Joi.string(),
     first_name: Joi.string(),
     email: Joi.string().email(),
-    role: Joi.string(),
+    role: Joi.string().valid("employee", "manager"),
     pwd: joiPassword
       .string()
       .min(8)
-      .max(50)
+      .max(60)
       .minOfSpecialCharacters(1)
       .minOfUppercase(1)
       .minOfNumeric(1)
@@ -103,7 +106,6 @@ export function validateUser(user, cs = "post") {
     case "post":
       required = ["salon_id", "last_name", "first_name", "email", "pwd"];
       schema = schema.fork(required, (field) => field.required());
-      console.log(user, schema.validate(user));
       return schema.validate(user);
     case "get":
     case "patch":

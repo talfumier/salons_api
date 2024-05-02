@@ -62,7 +62,7 @@ content-type: application/json
 {  
   "salon_id":5,
   "last_name":"MARTINEZ",  
-  "first_name":"Henri",
+  "first_name":"Henri29",
   "email":"xxxxx@xx.com",
   "pwd":"1234H67£"
 }

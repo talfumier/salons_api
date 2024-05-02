@@ -3,7 +3,7 @@ import {errorHandler} from "../middleware/errorHandler.js";
 import {invalidPathHandler} from "../middleware/invalidPathHandler.js";
 import salons from "./salons.js";
 import reports from "./reports.js";
-import users from "./users.js";
+import users from "./users/users.js";
 
 export function routes(app) {
   app.use(express.json()); //express built-in middleware applies to any route
