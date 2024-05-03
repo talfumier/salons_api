@@ -1,5 +1,5 @@
 import Mailjet from "node-mailjet";
-import environment from "../config/environment.js";
+import {environment} from "../config/environment.js";
 
 const mailjet = new Mailjet({
   apiKey: environment.mail_jet_api_key,
@@ -10,7 +10,6 @@ export const sendBasicEmail = (
   recipient,
   subject,
   htmlPart,
-  source,
   callback = null
 ) => {
   mailjet
@@ -19,8 +18,8 @@ export const sendBasicEmail = (
       Messages: [
         {
           From: {
-            Email: "noreply@salons_api.com",
-            Name: "messagerie salons_api",
+            Email: environment.mail_jet_sender,
+            Name: "salons_api mailbox: do not reply",
           },
           To: [
             {

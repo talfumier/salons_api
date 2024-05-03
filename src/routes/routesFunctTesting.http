@@ -1,10 +1,13 @@
-@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwic2Fsb25faWQiOjUsImxhc3RfbmFtZSI6Ik1BUlRJTkVaIiwiZmlyc3RfbmFtZSI6IkhlbnJpMjAiLCJlbWFpbCI6Inh4eHh4QHh4LmNvbSIsInJvbGUiOiJlbXBsb3llZSIsImlhdCI6MTcxNDcxNzcwNiwiZXhwIjoxNzE0NzcxNzA2fQ.rkyW5CF60O0gwn2TkTH9Ls3LDC2jPVmW44w-Cfs-4wA
+@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwic2Fsb25faWQiOjIsImxhc3RfbmFtZSI6Ik1BUlRJTkVaIiwiZmlyc3RfbmFtZSI6IkhlbnJpIiwiZW1haWwiOiJoZW5yaS50YWxmdW1pZXJAd2FuYWRvby5mciIsInJvbGUiOiJtYW5hZ2VyIiwiaWF0IjoxNzE0NzU5MTQyLCJleHAiOjE3MTQ4MTMxNDJ9.Kjpb6JI9P46OdXDkCkZggly_daSnFUiwmKpXvOSwJM8
 ### SALONS
 GET http://localhost:8000/api/salons
+x-auth-token:{{user_token}}
 ###
 GET http://localhost:8000/api/salons/5
+x-auth-token:{{user_token}}
 ###
 POST http://localhost:8000/api/salons
+x-auth-token:{{user_token}}
 content-type: application/json
 
 {
@@ -17,6 +20,7 @@ content-type: application/json
 }
 ###
 PATCH http://localhost:8000/api/salons/5
+x-auth-token:{{user_token}}
 content-type: application/json
 
 {
@@ -24,24 +28,29 @@ content-type: application/json
   "dept_id":"31A"
 }
 ###
-DELETE http://localhost:8000/api/salons/4
+DELETE http://localhost:8000/api/salons/1
+x-auth-token:{{user_token}}
 
 ### REPORTS
 GET http://localhost:8000/api/reports
+x-auth-token:{{user_token}}
 ###
 GET http://localhost:8000/api/reports/2
+x-auth-token:{{user_token}}
 ###
 POST http://localhost:8000/api/reports
+x-auth-token:{{user_token}}
 content-type: application/json
 
 {  
-  "salon_id":5,
+  "salon_id":2,
   "period":"2024-03-18", 
   "nb_etp":2.56,
   "turn_around":55002.36
 }
 ###
 PATCH http://localhost:8000/api/reports/8
+x-auth-token:{{user_token}}
 content-type: application/json
 
 {
@@ -50,23 +59,25 @@ content-type: application/json
   "salon_id":55
 }
 ###
-DELETE http://localhost:8000/api/reports/9
+DELETE http://localhost:8000/api/reports/1
+x-auth-token:{{user_token}}
 
 ### USERS
 GET http://localhost:8000/api/users
 x-auth-token:{{user_token}}
 ###
 GET http://localhost:8000/api/users/2
+x-auth-token:{{user_token}}
 ###
 POST http://localhost:8000/api/register
 content-type: application/json
 
 {  
-  "salon_id":5,
   "last_name":"MARTINEZ   ",  
-  "first_name":"  Henri34  ",
-  "email":"xxxxx@xx.com  ",
-  "pwd":"1234H67£"
+  "first_name":"  Henri  ",
+  "email":"henri.talfumier@wanadoo.fr  ",
+  "pwd":"1234H67£",
+  "role":"manager"
 }
 
 ###
@@ -74,7 +85,7 @@ POST http://localhost:8000/api/login
 content-type: application/json
 
 { 
-  "email":"xxxxx@xx.com  ",
+  "email":"henri.talfumier@wanadoo.fr",
   "pwd":"1234H67£"
 }
 ###

@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export const JoiIntegerIdSchema = Joi.number().integer().required();
+export const JoiIntegerIdSchema = Joi.number().integer().min(0).required(); //integer >=0 required
 export function validateIntegerId(id) {
   return JoiIntegerIdSchema.validate(id);
 }

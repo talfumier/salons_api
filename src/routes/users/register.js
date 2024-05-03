@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import {routeHandler} from "../../middleware/routeHandler.js";
 import {getModels, validateUser} from "../../models/sqlServerModels.js";
 import {BadRequest} from "../../models/validation/errors.js";
+import {sendBasicEmail} from "../../mailjet/sendEmail.js";
 import {environment} from "../../config/environment.js";
 
 const router = express.Router();
@@ -43,6 +44,8 @@ router.post(
   setModels,
   routeHandler(async (req, res) => {
     req.body = userBodyCleanUp(req.body);
+    if (!req.body.salon_id && req.body.role === "manager")
+      req.body.salon_id = -1; //temporary manager user belonging to salon_id=-1 pending creation of the actual salon
     const salon = await Salon.findByPk(req.body.salon_id);
     if (!salon)
       return res.send(
@@ -67,6 +70,11 @@ router.post(
       );
     user = await User.create(req.body);
     user.pwd = undefined; //does not return the password
+    sendBasicEmail(
+      user.email,
+      "salons_api: successfull registration",
+      `<b>${user.email}</b> has been successfully registered.`
+    );
     res.send({
       status: "OK",
       message: `User '${user.last_name} ${user.first_name}' successfully created.`,

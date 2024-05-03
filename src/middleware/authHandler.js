@@ -11,7 +11,7 @@ export function authHandler(req, res, next) {
     req.user = decoded;
     next(); //passing req with its user properties to the next middleware function
   } catch (err) {
-    console.log("Invalid token in auth_mw.js", err);
+    console.log("Invalid token in authHandler.js", err);
     return res.send(
       new Unauthorized("Invalid token - User has been disconnected !")
     );

@@ -1,3 +1,4 @@
 {
-  "db_name": "salons"
+  "db_name": "salons",
+  "token_expires_in": "15h"
 }
