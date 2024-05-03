@@ -1,5 +1,6 @@
 import express from "express";
 import axios from "axios";
+import {authHandler} from "../middleware/authHandler.js";
 import {routeHandler} from "../middleware/routeHandler.js";
 import {getModels, validateSalon} from "../models/sqlServerModels.js";
 import {BadRequest} from "../models/validation/errors.js";
@@ -15,15 +16,15 @@ function setModel(req, res, next) {
 /*BASIC*/
 router.get(
   "/",
-  setModel,
+  [authHandler, setModel],
   routeHandler(async (req, res) => {
-    const salons = await Salon.findAll();
+    const salons = await Salon.findAll({where: {id: req.user.salon_id}});
     res.send({status: "OK", data: salons});
   })
 );
 router.get(
   "/:id",
-  setModel,
+  [authHandler, setModel],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     const {error} = validateIntegerId(id);
@@ -31,6 +32,8 @@ router.get(
     const salon = await Salon.findByPk(id);
     if (!salon)
       return res.send(new BadRequest(`Salon with id:${id} not found.`));
+    if (salon.id !== req.user.salon_id)
+      return res.send(new Unauthorized("Access denied."));
     res.send({
       status: "OK",
       data: salon,
@@ -50,8 +53,14 @@ const checkValidDeptId = async (id) => {
 };
 router.post(
   "/",
-  setModel,
+  [authHandler, setModel],
   routeHandler(async (req, res) => {
+    if (req.user.role !== "manager")
+      return res.send(
+        new Unauthorized(
+          "Access denied.You are not authorized to create a salon."
+        )
+      );
     req.body = {...req.body, name_salon: req.body.name_salon.toString().trim()};
     const {error} = validateSalon(req.body, "post");
     if (error) return res.send(new BadRequest(error.details[0].message));
@@ -83,11 +92,17 @@ router.post(
 );
 router.patch(
   "/:id",
-  setModel,
+  [authHandler, setModel],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     let error = validateIntegerId(id).error;
     if (error) return res.send(new BadRequest(error.details[0].message));
+    if (req.user.role !== "manager" || req.user.salon_id !== id)
+      return res.send(
+        new Unauthorized(
+          `Access denied. You are not authorized to update salon id:${id} data.`
+        )
+      );
     //check department does exist
     if (req.body.dept_id) {
       const ck = await checkValidDeptId(req.body.dept_id);
@@ -96,6 +111,8 @@ router.patch(
     const salon = await Salon.findByPk(id);
     if (!salon)
       return res.send(new BadRequest(`Salon with id:${id} not found.`));
+    error = validateSalon(req.body, "patch").error;
+    if (error) return res.send(new BadRequest(error.details[0].message));
     await salon.update(req.body);
     res.send({
       status: "OK",
@@ -106,11 +123,17 @@ router.patch(
 );
 router.delete(
   "/:id",
-  setModel,
+  [authHandler, setModel],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     const {error} = validateIntegerId(id);
     if (error) return res.send(new BadRequest(error.details[0].message));
+    if (req.user.role !== "manager" || req.user.salon_id !== id)
+      return res.send(
+        new Unauthorized(
+          `Access denied. You are not authorized to delete salon id:${id}.`
+        )
+      );
     const salon = await Salon.findByPk(id);
     if (!salon)
       return res.send(new BadRequest(`Salon with id:${id} not found.`));

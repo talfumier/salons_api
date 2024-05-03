@@ -32,6 +32,8 @@
     "express": "^4.19.2",
     "joi": "^17.12.3",
     "joi-password": "^4.2.0",
+    "mysql2": "^3.9.7",
+    "node-mailjet": "^6.0.5",
     "sequelize": "^6.37.3",
     "tedious": "^18.1.0"
   },

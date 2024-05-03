@@ -1,3 +1,4 @@
+@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwic2Fsb25faWQiOjUsImxhc3RfbmFtZSI6Ik1BUlRJTkVaIiwiZmlyc3RfbmFtZSI6IkhlbnJpMjAiLCJlbWFpbCI6Inh4eHh4QHh4LmNvbSIsInJvbGUiOiJlbXBsb3llZSIsImlhdCI6MTcxNDcxNzcwNiwiZXhwIjoxNzE0NzcxNzA2fQ.rkyW5CF60O0gwn2TkTH9Ls3LDC2jPVmW44w-Cfs-4wA
 ### SALONS
 GET http://localhost:8000/api/salons
 ###
@@ -53,27 +54,39 @@ DELETE http://localhost:8000/api/reports/9
 
 ### USERS
 GET http://localhost:8000/api/users
+x-auth-token:{{user_token}}
 ###
 GET http://localhost:8000/api/users/2
 ###
-POST http://localhost:8000/api/users
+POST http://localhost:8000/api/register
 content-type: application/json
 
 {  
   "salon_id":5,
-  "last_name":"MARTINEZ",  
-  "first_name":"Henri29",
-  "email":"xxxxx@xx.com",
+  "last_name":"MARTINEZ   ",  
+  "first_name":"  Henri34  ",
+  "email":"xxxxx@xx.com  ",
+  "pwd":"1234H67£"
+}
+
+###
+POST http://localhost:8000/api/login
+content-type: application/json
+
+{ 
+  "email":"xxxxx@xx.com  ",
   "pwd":"1234H67£"
 }
 ###
-PATCH http://localhost:8000/api/users/1
+PATCH http://localhost:8000/api/profile/8
+x-auth-token:{{user_token}}
 content-type: application/json
 
 {
- "email":"henri@xx.com",
- "salon_id":55
+ "email":"henri12@xx.com",
+ "salon_id":5
 }
 ###
-DELETE http://localhost:8000/api/users/2
+DELETE http://localhost:8000/api/profile/8
+x-auth-token:{{user_token}}
 

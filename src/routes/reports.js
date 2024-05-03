@@ -1,5 +1,6 @@
 import express from "express";
 import {format} from "date-fns";
+import {authHandler} from "../middleware/authHandler.js";
 import {routeHandler} from "../middleware/routeHandler.js";
 import {getModels, validateReport} from "../models/sqlServerModels.js";
 import {BadRequest} from "../models/validation/errors.js";
@@ -18,15 +19,17 @@ function setModels(req, res, next) {
 /*BASIC*/
 router.get(
   "/",
-  setModels,
+  [authHandler, setModels],
   routeHandler(async (req, res) => {
-    const reports = await Report.findAll();
+    const reports = await Report.findAll({
+      where: {salon_id: req.user.salon_id},
+    });
     res.send({status: "OK", data: reports});
   })
 );
 router.get(
   "/:id",
-  setModels,
+  [authHandler, setModels],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     const {error} = validateIntegerId(id);
@@ -34,6 +37,8 @@ router.get(
     const report = await Report.findByPk(id);
     if (!report)
       return res.send(new BadRequest(`Report with id:${id} not found.`));
+    if (report.salon.id !== req.user.salon_id)
+      return res.send(new Unauthorized("Access denied."));
     res.send({
       status: "OK",
       data: report,
@@ -42,11 +47,22 @@ router.get(
 );
 router.post(
   "/",
-  setModels,
+  [authHandler, setModels],
   routeHandler(async (req, res) => {
     const {error} = validateReport(req.body, "post");
     if (error) return res.send(new BadRequest(error.details[0].message));
     req.body.period = format(req.body.period, "yyyy-MM");
+    const salon = await Salon.findByPk(req.body.salon_id);
+    if (!salon)
+      return res.send(
+        new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
+      );
+    if (salon.id !== req.user.salon_id)
+      return res.send(
+        new Unauthorized(
+          `Access denied. You are not authorized to create a report for salon id:${salon.id}`
+        )
+      );
     //check that report being created does not already exist for the same salon and same period
     let report = await Report.findOne({
       where: {
@@ -60,11 +76,6 @@ router.post(
           `Report with id:'${report.id}' does already exist for the period ${req.body.period}.`
         )
       );
-    const salon = await Salon.findByPk(req.body.salon_id);
-    if (!salon)
-      return res.send(
-        new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
-      );
     report = await Report.create(req.body);
     res.send({
       status: "OK",
@@ -75,7 +86,7 @@ router.post(
 );
 router.patch(
   "/:id",
-  setModels,
+  [authHandler, setModels],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     let error = validateIntegerId(id).error;
@@ -83,13 +94,16 @@ router.patch(
     const report = await Report.findByPk(id);
     if (!report)
       return res.send(new BadRequest(`Report with id:${id} not found.`));
-    if (req.body.salon_id) {
-      const salon = await Salon.findByPk(req.body.salon_id);
-      if (!salon)
-        return res.send(
-          new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
-        );
-    }
+    if (report.salon_id !== req.user.salon_id)
+      return res.send(
+        new Unauthorized(
+          `Access denied. You are not authorized to update any report for salon id:${report.salon.id}`
+        )
+      );
+    if (req.body.salon_id && req.body.salon_id !== report.salon_id)
+      return res.send(new BadRequest(`salon_id cannot be updated.`));
+    error = validateReport(req.body, "patch").error;
+    if (error) return res.send(new BadRequest(error.details[0].message));
     await report.update(req.body);
     res.send({
       status: "OK",
@@ -100,7 +114,7 @@ router.patch(
 );
 router.delete(
   "/:id",
-  setModels,
+  [authHandler, setModels],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     const {error} = validateIntegerId(id);
@@ -108,6 +122,12 @@ router.delete(
     const report = await Report.findByPk(id);
     if (!report)
       return res.send(new BadRequest(`Report with id:${id} not found.`));
+    if (report.salon_id !== req.user.salon_id)
+      return res.send(
+        new Unauthorized(
+          `Access denied. You are not authorized to delete report id:${report.id}`
+        )
+      );
     await report.destroy();
     res.send({
       status: "OK",
