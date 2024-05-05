@@ -1,4 +1,4 @@
-@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwic2Fsb25faWQiOjIsImxhc3RfbmFtZSI6Ik1BUlRJTkVaIiwiZmlyc3RfbmFtZSI6IkhlbnJpIiwiZW1haWwiOiJoZW5yaS50YWxmdW1pZXJAd2FuYWRvby5mciIsInJvbGUiOiJtYW5hZ2VyIiwiaWF0IjoxNzE0NzU5MTQyLCJleHAiOjE3MTQ4MTMxNDJ9.Kjpb6JI9P46OdXDkCkZggly_daSnFUiwmKpXvOSwJM8
+@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImxhc3RfbmFtZSI6Ik1BUlRJTkVaIiwiZmlyc3RfbmFtZSI6IkhlbnJpIiwiZW1haWwiOiJoZW5yaS50YWxmdW1pZXJAd2FuYWRvby5mciIsInJvbGUiOiJhZG1pbl9zYWxvbiIsImlhdCI6MTcxNDkxOTkzOSwiZXhwIjoxNzE0OTczOTM5fQ.Anh5FophWGN4LAUebkiVlpZCeZgAF_kMLi-CqHg7OWs
 ### SALONS
 GET http://localhost:8000/api/salons
 x-auth-token:{{user_token}}
@@ -66,7 +66,7 @@ x-auth-token:{{user_token}}
 GET http://localhost:8000/api/users
 x-auth-token:{{user_token}}
 ###
-GET http://localhost:8000/api/users/2
+GET http://localhost:8000/api/users/27
 x-auth-token:{{user_token}}
 ###
 POST http://localhost:8000/api/register
@@ -76,9 +76,23 @@ content-type: application/json
   "last_name":"MARTINEZ   ",  
   "first_name":"  Henri  ",
   "email":"henri.talfumier@wanadoo.fr  ",
-  "pwd":"1234H67£",
-  "role":"manager"
+  "pwd":"1234H67£"
 }
+###
+POST http://localhost:8000/api/register
+content-type: application/json
+
+{  
+  "salon_id":1,
+  "last_name":"MARTINEZ   ",  
+  "first_name":"  Henri5 ",
+  "email":"henri.talfumier@gmail.com  ",
+  "pwd":"1234H67£"
+}
+###
+GET http://localhost:8000/api/validate/27/1
+x-auth-token:{{user_token}}
+content-type: application/json
 
 ###
 POST http://localhost:8000/api/login
@@ -89,7 +103,7 @@ content-type: application/json
   "pwd":"1234H67£"
 }
 ###
-PATCH http://localhost:8000/api/profile/8
+PATCH http://localhost:8000/api/profile
 x-auth-token:{{user_token}}
 content-type: application/json
 
@@ -98,6 +112,6 @@ content-type: application/json
  "salon_id":5
 }
 ###
-DELETE http://localhost:8000/api/profile/8
+DELETE http://localhost:8000/api/profile
 x-auth-token:{{user_token}}
 

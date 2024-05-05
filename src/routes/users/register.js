@@ -1,3 +1,4 @@
+// @ts-check
 import express from "express";
 import bcrypt from "bcrypt";
 import {routeHandler} from "../../middleware/routeHandler.js";
@@ -9,33 +10,35 @@ import {environment} from "../../config/environment.js";
 const router = express.Router();
 
 let Salon = null,
-  User = null;
+  User = null,
+  User_Salon = null,
+  connection = null;
 function setModels(req, res, next) {
   const models = getModels();
   Salon = models.Salon;
   User = models.User;
+  User_Salon = models.User_Salon;
+  connection = models.connection;
   next();
 }
-export function userBodyCleanUp(body, cs = "post") {
+export function bodyCleanUp(body) {
   const keys = Object.keys(body);
-  let role = false;
-  keys.map(async (key) => {
+  keys.map((key) => {
     switch (key) {
       case "last_name":
       case "first_name":
+      case "role":
+      case "name_salon":
+      case "address":
+      case "city":
+      case "zip":
+      case "dept_id":
       case "email":
         body[key] = body[key].toString().trim();
-        break;
-      case "role":
-        role = true;
-        break;
-      case "pwd":
-        body[key] = await bcrypt.hash(body.pwd, environment.salt_rounds);
         break;
       default:
     }
   });
-  if (cs === "post" && !role) body.role = "employee"; //set default value
   return body;
 }
 
@@ -43,41 +46,67 @@ router.post(
   "/",
   setModels,
   routeHandler(async (req, res) => {
-    req.body = userBodyCleanUp(req.body);
-    if (!req.body.salon_id && req.body.role === "manager")
-      req.body.salon_id = -1; //temporary manager user belonging to salon_id=-1 pending creation of the actual salon
-    const salon = await Salon.findByPk(req.body.salon_id);
-    if (!salon)
+    req.body = bodyCleanUp(req.body);
+    if (req.body.role && req.body.role === "admin")
       return res.send(
-        new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
+        new BadRequest(
+          `User ${req.body.email} with admin privilege cannot be created through the API.`
+        )
       );
-    const {error} = validateUser(req.body, "post");
+    req.body.role = req.body.salon_id ? "user_salon" : "admin_salon";
+    const {salon_id, ...body} = req.body;
+    const {error} = validateUser(body, "post");
     if (error) return res.send(new BadRequest(error.details[0].message));
-    //check that user being created does not already exist for the same salon
-    let user = await User.findOne({
+    let user = null;
+    //check that user being created does not already exist
+    user = await User.findOne({
       where: {
-        salon_id: req.body.salon_id,
-        last_name: req.body.last_name,
-        first_name: req.body.first_name,
+        email: req.body.email,
       },
-      attributes: {exclude: ["pwd"]},
     });
     if (user)
       return res.send(
-        new BadRequest(
-          `User '${user.last_name} ${user.first_name}' does already exist for this salon.`
-        )
+        new BadRequest(`User ${user.email} is already registered.`)
       );
-    user = await User.create(req.body);
+    if (req.body.salon_id) {
+      //user_salon case > check salon does exist
+      const salon = await Salon.findByPk(req.body.salon_id);
+      if (!salon)
+        return res.send(
+          new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
+        );
+    }
+    user = await User.create({
+      ...body,
+      pwd: await bcrypt.hash(body.pwd, environment.salt_rounds),
+    });
     user.pwd = undefined; //does not return the password
     sendBasicEmail(
       user.email,
       "salons_api: successfull registration",
-      `<b>${user.email}</b> has been successfully registered.`
+      `<b>${user.email}</b> with role '${user.role}' has been successfully registered.`
     );
+    //user_salon case
+    if (req.body.salon_id) {
+      await User_Salon.create({userId: user.id, salonId: req.body.salon_id}); //update table users_salons > validated=null by default
+      //alert admin_salon that there is a new user_salon that needs to be validated
+      const sql = `SELECT DISTINCT salons.users.email FROM salons.users JOIN salons.users_salons 
+      ON salons.users.id=salons.users_salons.userId 
+      WHERE salons.users.role='admin_salon' GROUP BY salons.users.email;`;
+      const email = (
+        await connection.query(sql, {
+          type: connection.QueryTypes.SELECT,
+        })
+      )[0].email;
+      sendBasicEmail(
+        email,
+        "salons_api: validation required",
+        `<b>${user.email}</b> (id:${user.id}) with role '${user.role}' is waiting for your validation on salon id:${req.body.salon_id}.`
+      );
+    }
     res.send({
       status: "OK",
-      message: `User '${user.last_name} ${user.first_name}' successfully created.`,
+      message: `User '${user.last_name} ${user.first_name}' with role '${user.role}' successfully registered.`,
       data: user,
     });
   })

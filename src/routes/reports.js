@@ -1,9 +1,12 @@
+// @ts-check
 import express from "express";
+import {Op} from "sequelize";
 import {format} from "date-fns";
 import {authHandler} from "../middleware/authHandler.js";
+import {authValid} from "../middleware/authValid.js";
 import {routeHandler} from "../middleware/routeHandler.js";
 import {getModels, validateReport} from "../models/sqlServerModels.js";
-import {BadRequest} from "../models/validation/errors.js";
+import {BadRequest, Unauthorized} from "../models/validation/errors.js";
 import {validateIntegerId} from "../models/validation/joiUtilityFunctions.js";
 
 const router = express.Router();
@@ -19,17 +22,17 @@ function setModels(req, res, next) {
 /*BASIC*/
 router.get(
   "/",
-  [authHandler, setModels],
+  [authHandler, authValid, setModels],
   routeHandler(async (req, res) => {
     const reports = await Report.findAll({
-      where: {salon_id: req.user.salon_id},
+      where: {salon_id: {[Op.in]: req.user.salons}},
     });
     res.send({status: "OK", data: reports});
   })
 );
 router.get(
   "/:id",
-  [authHandler, setModels],
+  [authHandler, authValid, setModels],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     const {error} = validateIntegerId(id);
@@ -37,7 +40,7 @@ router.get(
     const report = await Report.findByPk(id);
     if (!report)
       return res.send(new BadRequest(`Report with id:${id} not found.`));
-    if (report.salon.id !== req.user.salon_id)
+    if (!req.user.salons.includes(report.salon.id))
       return res.send(new Unauthorized("Access denied."));
     res.send({
       status: "OK",
@@ -47,21 +50,21 @@ router.get(
 );
 router.post(
   "/",
-  [authHandler, setModels],
+  [authHandler, authValid, setModels],
   routeHandler(async (req, res) => {
     const {error} = validateReport(req.body, "post");
     if (error) return res.send(new BadRequest(error.details[0].message));
     req.body.period = format(req.body.period, "yyyy-MM");
+    if (!req.user.salons.includes(req.body.salon_id))
+      return res.send(
+        new Unauthorized(
+          `Access denied. You are not authorized to create a report for salon id:${req.body.salon_id}`
+        )
+      );
     const salon = await Salon.findByPk(req.body.salon_id);
     if (!salon)
       return res.send(
         new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
-      );
-    if (salon.id !== req.user.salon_id)
-      return res.send(
-        new Unauthorized(
-          `Access denied. You are not authorized to create a report for salon id:${salon.id}`
-        )
       );
     //check that report being created does not already exist for the same salon and same period
     let report = await Report.findOne({
@@ -86,7 +89,7 @@ router.post(
 );
 router.patch(
   "/:id",
-  [authHandler, setModels],
+  [authHandler, authValid, setModels],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     let error = validateIntegerId(id).error;
@@ -94,7 +97,7 @@ router.patch(
     const report = await Report.findByPk(id);
     if (!report)
       return res.send(new BadRequest(`Report with id:${id} not found.`));
-    if (report.salon_id !== req.user.salon_id)
+    if (!req.user.salons.includes(report.salon.id))
       return res.send(
         new Unauthorized(
           `Access denied. You are not authorized to update any report for salon id:${report.salon.id}`
@@ -114,7 +117,7 @@ router.patch(
 );
 router.delete(
   "/:id",
-  [authHandler, setModels],
+  [authHandler, authValid, setModels],
   routeHandler(async (req, res) => {
     const id = req.params.id;
     const {error} = validateIntegerId(id);
@@ -122,7 +125,7 @@ router.delete(
     const report = await Report.findByPk(id);
     if (!report)
       return res.send(new BadRequest(`Report with id:${id} not found.`));
-    if (report.salon_id !== req.user.salon_id)
+    if (!req.user.salons.includes(report.salon.id))
       return res.send(
         new Unauthorized(
           `Access denied. You are not authorized to delete report id:${report.id}`

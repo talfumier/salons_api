@@ -1,3 +1,4 @@
+// @ts-check
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -11,7 +12,6 @@ const router = express.Router();
 
 let User = null;
 function setModel(req, res, next) {
-  const models = getModels();
   User = getModels().User;
   next();
 }
@@ -29,7 +29,6 @@ router.post(
         const token = jwt.sign(
           {
             id: user.id,
-            salon_id: user.salon_id,
             last_name: user.last_name,
             first_name: user.first_name,
             email: user.email,

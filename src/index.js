@@ -27,11 +27,13 @@ sqlModels.Report.belongsTo(sqlModels.Salon, {
 sqlModels.Salon.hasMany(sqlModels.Report, {
   foreignKey: "salon_id",
 });
-sqlModels.User.belongsTo(sqlModels.Salon, {
-  foreignKey: "salon_id",
+sqlModels.User.belongsToMany(sqlModels.Salon, {
+  through: sqlModels.User_Salon, //CASCADE DELETE by default
+  as: "user_id",
 });
-sqlModels.Salon.hasMany(sqlModels.User, {
-  foreignKey: "salon_id",
+sqlModels.Salon.belongsToMany(sqlModels.User, {
+  through: sqlModels.User_Salon, //CASCADE DELETE by default
+  as: "salon_id",
 });
 
 let flg = 0; //error flag if any

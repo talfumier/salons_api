@@ -33,11 +33,11 @@ export const sendBasicEmail = (
       ],
     })
     .then((resolved) => {
-      console.log({success: true, email: recipient, source});
+      console.log({success: true, email: recipient});
       if (callback) callback();
     })
     .catch((error) => {
-      console.log({success: false, email: recipient, source, error});
+      console.log({success: false, email: recipient, error});
       if (callback) callback(error);
     });
 };

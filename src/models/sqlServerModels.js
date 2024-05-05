@@ -3,7 +3,13 @@ import Joi from "joi";
 import {joiPasswordExtendCore} from "joi-password";
 import {joiSubSchema} from "./validation/joiUtilityFunctions.js";
 
-let models = {Salon: null, User: null, Report: null, connection: null};
+let models = {
+  Salon: null,
+  User: null,
+  User_Salon: null,
+  Report: null,
+  connection: null,
+};
 export function getModels() {
   return models;
 }
@@ -23,7 +29,6 @@ export function defineSqlServerModels(sqlServerConnection) {
   });
   const User = sqlServerConnection.define("users", {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
-    salon_id: {type: DataTypes.INTEGER, allowNull: false},
     last_name: {type: DataTypes.STRING, allowNull: false},
     first_name: {type: DataTypes.STRING, allowNull: false},
     email: {type: DataTypes.STRING, allowNull: false},
@@ -37,6 +42,12 @@ export function defineSqlServerModels(sqlServerConnection) {
       defaultValue: DataTypes.NOW,
     },
   });
+  const User_Salon = sqlServerConnection.define("users_salons", {
+    validated: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+  });
   const Report = sqlServerConnection.define("reports", {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
     period: {
@@ -47,7 +58,13 @@ export function defineSqlServerModels(sqlServerConnection) {
     nb_etp: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
     turn_around: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
   });
-  return (models = {Salon, User, Report, connection: sqlServerConnection});
+  return (models = {
+    Salon,
+    User,
+    User_Salon,
+    Report,
+    connection: sqlServerConnection,
+  });
 }
 export function validateSalon(salon, cs = "post") {
   let schema = Joi.object({
@@ -86,11 +103,10 @@ export function validateSalon(salon, cs = "post") {
 export function validateUser(user, cs = "post") {
   const joiPassword = Joi.extend(joiPasswordExtendCore);
   let schema = Joi.object({
-    salon_id: Joi.number(),
     last_name: Joi.string(),
     first_name: Joi.string(),
     email: Joi.string().email(),
-    role: Joi.string().valid("employee", "manager"),
+    role: Joi.string().valid("admin", "admin_salon", "user_salon"),
     pwd: joiPassword
       .string()
       .min(8)
@@ -104,7 +120,7 @@ export function validateUser(user, cs = "post") {
   let required = [];
   switch (cs) {
     case "post":
-      required = ["salon_id", "last_name", "first_name", "email", "pwd"];
+      required = ["last_name", "first_name", "email", "role", "pwd"];
       schema = schema.fork(required, (field) => field.required());
       return schema.validate(user);
     case "get":

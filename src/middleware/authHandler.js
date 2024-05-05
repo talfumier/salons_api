@@ -1,3 +1,4 @@
+// @ts-check
 import jwt from "jsonwebtoken";
 import {environment} from "../config/environment.js";
 import {Unauthorized} from "../models/validation/errors.js";
