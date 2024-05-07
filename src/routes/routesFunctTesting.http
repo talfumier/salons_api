@@ -11,12 +11,12 @@ x-auth-token:{{user_token}}
 content-type: application/json
 
 {
-  "name_salon":"xxxx", 
+  "name_salon":"yyyyy", 
   "address":"4, impasse du pigeonnier",
   "city":"Paris",
   "zip":"75310",
   "dept_id":"75",
-  "date_open":"2024-04-20"
+  "date_open":"2024-05-20"
 }
 ###
 PATCH http://localhost:8000/api/salons/5
@@ -38,13 +38,13 @@ x-auth-token:{{user_token}}
 GET http://localhost:8000/api/reports/2
 x-auth-token:{{user_token}}
 ###
-POST http://localhost:8000/api/reports
+POST http://localhost:8000/api/reports/input
 x-auth-token:{{user_token}}
 content-type: application/json
 
 {  
-  "salon_id":2,
-  "period":"2024-03-18", 
+  "salon_id":1,
+  "period":"2024-04-18", 
   "nb_etp":2.56,
   "turn_around":55002.36
 }

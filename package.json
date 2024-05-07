@@ -25,7 +25,6 @@
     "nodemon": "^3.1.0"
   },
   "dependencies": {
-    "@sequelize/core": "^7.0.0-alpha.37",
     "api-query-params": "^5.4.0",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
@@ -35,6 +34,7 @@
     "joi-password": "^4.2.0",
     "mysql2": "^3.9.7",
     "node-mailjet": "^6.0.5",
+    "node-schedule": "^2.1.1",
     "sequelize": "^6.37.3",
     "tedious": "^18.1.0"
   },

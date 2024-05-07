@@ -1,9 +1,11 @@
 import {Sequelize} from "sequelize";
 import express from "express";
+import nodeSchedule from "node-schedule";
 import {defineSqlServerModels} from "./models/sqlServerModels.js";
 import config from "./config/config.json" assert {type: "json"};
 import {environment} from "./config/environment.js";
 import {routes} from "./routes/routes.js";
+import {sendReminder} from "./cron/reminder.js";
 
 /*DEALING MITH MS SQL SERVER*/
 const sqlServerConnection = new Sequelize(
@@ -71,3 +73,16 @@ app.listen(port, () => {
     } server is listening on port ${port} 🚀`
   );
 });
+/*LAUNCH CRON TASKS SCHEDULING*/
+nodeSchedule.scheduleJob(
+  //job scheduled every 5th day of every month at 02:00
+  {
+    date: 5,
+    hour: 2,
+    minute: 0,
+    // second: 35,
+  },
+  () => {
+    sendReminder();
+  }
+);

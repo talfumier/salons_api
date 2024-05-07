@@ -49,7 +49,7 @@ router.get(
   })
 );
 router.post(
-  "/",
+  "/input",
   [authHandler, authValid, setModels],
   routeHandler(async (req, res) => {
     const {error} = validateReport(req.body, "post");

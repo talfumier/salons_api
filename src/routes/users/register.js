@@ -68,9 +68,10 @@ router.post(
       return res.send(
         new BadRequest(`User ${user.email} is already registered.`)
       );
+    let salon = null;
     if (req.body.salon_id) {
       //user_salon case > check salon does exist
-      const salon = await Salon.findByPk(req.body.salon_id);
+      salon = await Salon.findByPk(req.body.salon_id);
       if (!salon)
         return res.send(
           new BadRequest(`Salon with id:${req.body.salon_id} not found.`)
@@ -83,8 +84,8 @@ router.post(
     user.pwd = undefined; //does not return the password
     sendBasicEmail(
       user.email,
-      "salons_api: successfull registration",
-      `<b>${user.email}</b> with role '${user.role}' has been successfully registered.`
+      "salons_api: nouvel utilisateur enregistré",
+      `<b>${user.email}</b> avec le rôle '${user.role}' a été enregistré avec succès.`
     );
     //user_salon case
     if (req.body.salon_id) {
@@ -100,8 +101,8 @@ router.post(
       )[0].email;
       sendBasicEmail(
         email,
-        "salons_api: validation required",
-        `<b>${user.email}</b> (id:${user.id}) with role '${user.role}' is waiting for your validation on salon id:${req.body.salon_id}.`
+        "salons_api: validation requise",
+        `<b>${user.email}</b> (id:${user.id}) avec le rôle '${user.role}' attend votre validation pour le salon '${salon.name_salon}'.`
       );
     }
     res.send({
