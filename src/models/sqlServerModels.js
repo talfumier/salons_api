@@ -21,6 +21,7 @@ export function defineSqlServerModels(sqlServerConnection) {
     city: {type: DataTypes.STRING, allowNull: false},
     zip: {type: DataTypes.STRING, allowNull: false},
     dept_id: {type: DataTypes.STRING, allowNull: false},
+    region_id: {type: DataTypes.STRING},
     date_open: {
       type: DataTypes.DATE,
       allowNull: false,

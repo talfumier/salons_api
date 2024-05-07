@@ -6,8 +6,9 @@ import config from "./config/config.json" assert {type: "json"};
 import {environment} from "./config/environment.js";
 import {routes} from "./routes/routes.js";
 import {sendReminder} from "./cron/reminder.js";
+import {generateData} from "./models/fakeData/dataInit.js";
 
-/*DEALING MITH MS SQL SERVER*/
+/*DEALING MITH MYSQL*/
 const sqlServerConnection = new Sequelize(
   config.db_name,
   environment.production ? process.env.SALONS_DB_USER : environment.user,
@@ -75,9 +76,8 @@ app.listen(port, () => {
 });
 /*LAUNCH CRON TASKS SCHEDULING*/
 nodeSchedule.scheduleJob(
-  //job scheduled every 5th day of every month at 02:00
   {
-    date: 5,
+    date: 5, //job scheduled every 5th day of every month at 02:00
     hour: 2,
     minute: 0,
     // second: 35,
@@ -86,3 +86,6 @@ nodeSchedule.scheduleJob(
     sendReminder();
   }
 );
+/*INITIALIZE FAKE DATA WHEN DATABASE IS EMPTY*/
+const data = await sqlModels.Report.findOne();
+if (!data) await generateData();

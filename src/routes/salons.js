@@ -64,7 +64,7 @@ const checkValidDeptId = async (id) => {
       false,
       new BadRequest(`French department with id:${id} not found.`),
     ];
-  return [true];
+  return [true, depts[0].codeRegion];
 };
 router.post(
   "/",
@@ -75,6 +75,7 @@ router.post(
     if (error) return res.send(new BadRequest(error.details[0].message));
     const ck = await checkValidDeptId(req.body.dept_id); //check department does exist
     if (!ck[0]) return res.send(ck[1]);
+    req.body.region_id = ck[1];
     //check that salon being created does not already exist
     let salon = await Salon.findOne({
       where: {
@@ -127,6 +128,7 @@ router.patch(
     if (req.body.dept_id) {
       const ck = await checkValidDeptId(req.body.dept_id);
       if (!ck[0]) return res.send(ck[1]);
+      req.body.region_id = ck[1];
     }
     const salon = await Salon.findByPk(id);
     if (!salon)
