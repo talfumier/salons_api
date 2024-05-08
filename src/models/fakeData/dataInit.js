@@ -13,9 +13,13 @@ function getRandomItem(arr) {
 function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
 }
+function removeAccents(str, index = null) {
+  if (!index) return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  else return removeAccents(str.slice(0, 1)) + str.slice(1);
+}
 function createUser(id, role) {
-  const last_name = fakerFR.person.lastName(),
-    first_name = fakerFR.person.firstName();
+  const last_name = removeAccents(fakerFR.person.lastName(), 1),
+    first_name = removeAccents(fakerFR.person.firstName(), 1);
   return {
     id,
     last_name,
@@ -36,6 +40,16 @@ function getMonthlyTA(fte) {
     result += 0.1 * getRandomNumber(5000, 10000); //monthly turn-around per fte
   return result.toFixed(2);
 }
+export async function initDeptRegionData() {
+  const models = getModels();
+  const Dept = models.Dept,
+    Region = models.Region;
+  let data = await axios.get("https://geo.api.gouv.fr/regions");
+  await Region.bulkCreate(data.data);
+  data = await axios.get("https://geo.api.gouv.fr/departements");
+  await Dept.bulkCreate(data.data);
+  console.log("[API]: Departments/regions data successfully initialized.");
+}
 export async function generateData() {
   const users = {admin_salon: [], user_salon: []},
     users_salons = [],
@@ -44,7 +58,6 @@ export async function generateData() {
   let city = null,
     j = 0,
     nu = 1,
-    usr = null,
     date = null,
     fte = null,
     period = null;
@@ -71,7 +84,7 @@ export async function generateData() {
       reports.push({
         period,
         salon_id: ns + 1,
-        nb_etp: fte,
+        fte,
         turn_around: getMonthlyTA(fte),
       });
       period = format(addMonths(period, 1), "yyyy-MM");
@@ -83,8 +96,7 @@ export async function generateData() {
       address: fakerFR.location.streetAddress(),
       city: city.nom,
       zip: getRandomItem(city.codesPostaux),
-      dept_id: city.codeDepartement,
-      region_id: city.codeRegion,
+      code: city.codeDepartement,
       date_open: date,
     };
   });

@@ -6,7 +6,7 @@ import config from "./config/config.json" assert {type: "json"};
 import {environment} from "./config/environment.js";
 import {routes} from "./routes/routes.js";
 import {sendReminder} from "./cron/reminder.js";
-import {generateData} from "./models/fakeData/dataInit.js";
+import {generateData, initDeptRegionData} from "./models/fakeData/dataInit.js";
 
 /*DEALING MITH MYSQL*/
 const sqlServerConnection = new Sequelize(
@@ -24,19 +24,30 @@ const sqlServerConnection = new Sequelize(
 //define models
 const sqlModels = defineSqlServerModels(sqlServerConnection);
 //define relationships
-sqlModels.Report.belongsTo(sqlModels.Salon, {
-  foreignKey: "salon_id",
+sqlModels.Region.hasMany(sqlModels.Dept, {
+  foreignKey: "codeRegion",
+});
+sqlModels.Dept.belongsTo(sqlModels.Region, {
+  foreignKey: "code",
+});
+sqlModels.Salon.belongsTo(sqlModels.Dept, {
+  foreignKey: "code",
+});
+sqlModels.Dept.hasMany(sqlModels.Salon, {
+  foreignKey: "code",
 });
 sqlModels.Salon.hasMany(sqlModels.Report, {
   foreignKey: "salon_id",
 });
-sqlModels.User.belongsToMany(sqlModels.Salon, {
-  through: sqlModels.User_Salon, //CASCADE DELETE by default
-  as: "user_id",
+sqlModels.Report.belongsTo(sqlModels.Salon, {
+  foreignKey: "salon_id",
 });
+
 sqlModels.Salon.belongsToMany(sqlModels.User, {
   through: sqlModels.User_Salon, //CASCADE DELETE by default
-  as: "salon_id",
+});
+sqlModels.User.belongsToMany(sqlModels.Salon, {
+  through: sqlModels.User_Salon, //CASCADE DELETE by default
 });
 
 let flg = 0; //error flag if any
@@ -74,6 +85,12 @@ app.listen(port, () => {
     } server is listening on port ${port} 🚀`
   );
 });
+/*INITIALIZE DEPARTMENT/REGION DATA*/
+let data = await sqlModels.Dept.findOne();
+if (!data) await initDeptRegionData();
+/*INITIALIZE FAKE DATA WHEN DATABASE IS EMPTY*/
+data = await sqlModels.Report.findOne();
+if (!data) await generateData();
 /*LAUNCH CRON TASKS SCHEDULING*/
 nodeSchedule.scheduleJob(
   {
@@ -86,6 +103,3 @@ nodeSchedule.scheduleJob(
     sendReminder();
   }
 );
-/*INITIALIZE FAKE DATA WHEN DATABASE IS EMPTY*/
-const data = await sqlModels.Report.findOne();
-if (!data) await generateData();

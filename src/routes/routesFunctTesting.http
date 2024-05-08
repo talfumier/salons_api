@@ -1,4 +1,4 @@
-@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImxhc3RfbmFtZSI6Ik1BUlRJTkVaIiwiZmlyc3RfbmFtZSI6IkhlbnJpIiwiZW1haWwiOiJoZW5yaS50YWxmdW1pZXJAd2FuYWRvby5mciIsInJvbGUiOiJhZG1pbl9zYWxvbiIsImlhdCI6MTcxNDkxOTkzOSwiZXhwIjoxNzE0OTczOTM5fQ.Anh5FophWGN4LAUebkiVlpZCeZgAF_kMLi-CqHg7OWs
+@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImxhc3RfbmFtZSI6IlJlbmF1bHQiLCJmaXJzdF9uYW1lIjoiU2F2aW4iLCJlbWFpbCI6IlNhdmluLlJlbmF1bHRAaG90bWFpbC5mciIsInJvbGUiOiJhZG1pbl9zYWxvbiIsImlhdCI6MTcxNTE4NTM0MywiZXhwIjoxNzE1MjM5MzQzfQ.Mr4xqdQCavTrTR2RyGPlB5I-24uZsDh4xmfVAHvHcgA
 ### SALONS
 GET http://localhost:8000/api/salons
 x-auth-token:{{user_token}}
@@ -15,7 +15,7 @@ content-type: application/json
   "address":"4, impasse du pigeonnier",
   "city":"Paris",
   "zip":"75310",
-  "dept_id":"75",
+  "code":"75",
   "date_open":"2024-05-20"
 }
 ###
@@ -25,7 +25,7 @@ content-type: application/json
 
 {
   "name_salon":"Beauty salon", 
-  "dept_id":"31A"
+  "code":"31A"
 }
 ###
 DELETE http://localhost:8000/api/salons/1
@@ -45,7 +45,7 @@ content-type: application/json
 {  
   "salon_id":1,
   "period":"2024-04-18", 
-  "nb_etp":2.56,
+  "fte":2.56,
   "turn_around":55002.36
 }
 ###
@@ -54,7 +54,7 @@ x-auth-token:{{user_token}}
 content-type: application/json
 
 {
- "nb_etp":2.5,
+ "fte":2.5,
   "turn_around":25658.2,
   "salon_id":55
 }
@@ -83,11 +83,10 @@ POST http://localhost:8000/api/register
 content-type: application/json
 
 {  
-  "salon_id":1,
   "last_name":"MARTINEZ   ",  
   "first_name":"  Henri5 ",
   "email":"henri.talfumier@gmail.com  ",
-  "pwd":"1234H67£"
+  "pwd":"Epsi2024$"
 }
 ###
 GET http://localhost:8000/api/validate/27/1
@@ -113,5 +112,24 @@ content-type: application/json
 }
 ###
 DELETE http://localhost:8000/api/profile
+x-auth-token:{{user_token}}
+
+### STATS
+###
+POST http://localhost:8000/api/login
+content-type: application/json
+
+{ 
+  "email":"Savin.Renault@hotmail.fr",
+  "pwd":"Sr12345$"
+}
+###
+GET http://localhost:8000/api/stats/raw/salon
+x-auth-token:{{user_token}}
+###
+GET http://localhost:8000/api/stats/dept/all
+x-auth-token:{{user_token}}
+###
+GET http://localhost:8000/api/stats/region/all
 x-auth-token:{{user_token}}
 

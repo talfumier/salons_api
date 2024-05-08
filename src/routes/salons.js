@@ -1,7 +1,6 @@
 // @ts-check
 import express from "express";
 import {Op} from "sequelize";
-import axios from "axios";
 import {authHandler} from "../middleware/authHandler.js";
 import {authValid} from "../middleware/authValid.js";
 import {authAdmin} from "../middleware/authAdmin.js";
@@ -13,11 +12,13 @@ import {bodyCleanUp} from "./users/register.js";
 
 const router = express.Router();
 let Salon = null,
+  Dept = null,
   User_Salon = null,
   Report = null;
 function setModels(req, res, next) {
   const models = getModels();
   Salon = models.Salon;
+  Dept = models.Dept;
   User_Salon = models.User_Salon;
   Report = models.Report;
   next();
@@ -56,15 +57,13 @@ router.get(
   })
 );
 const checkValidDeptId = async (id) => {
-  const depts = (
-    await axios.get(`https://geo.api.gouv.fr/departements?code=${id}`)
-  ).data;
-  if (depts.length === 0)
+  const dept = await Dept.findByPk(id);
+  if (dept)
     return [
       false,
       new BadRequest(`French department with id:${id} not found.`),
     ];
-  return [true, depts[0].codeRegion];
+  return [true];
 };
 router.post(
   "/",
@@ -73,9 +72,8 @@ router.post(
     req.body = bodyCleanUp(req.body);
     const {error} = validateSalon(req.body, "post");
     if (error) return res.send(new BadRequest(error.details[0].message));
-    const ck = await checkValidDeptId(req.body.dept_id); //check department does exist
+    const ck = await checkValidDeptId(req.body.code); //check department does exist
     if (!ck[0]) return res.send(ck[1]);
-    req.body.region_id = ck[1];
     //check that salon being created does not already exist
     let salon = await Salon.findOne({
       where: {
@@ -83,7 +81,7 @@ router.post(
         address: req.body.address,
         city: req.body.city,
         zip: req.body.zip,
-        dept_id: req.body.dept_id,
+        code: req.body.code,
       },
     });
     if (salon)
@@ -125,10 +123,9 @@ router.patch(
         )
       );
     //check department does exist
-    if (req.body.dept_id) {
-      const ck = await checkValidDeptId(req.body.dept_id);
+    if (req.body.code) {
+      const ck = await checkValidDeptId(req.body.code);
       if (!ck[0]) return res.send(ck[1]);
-      req.body.region_id = ck[1];
     }
     const salon = await Salon.findByPk(id);
     if (!salon)

@@ -5,6 +5,8 @@ import {joiSubSchema} from "./validation/joiUtilityFunctions.js";
 
 let models = {
   Salon: null,
+  Dept: null,
+  Region: null,
   User: null,
   User_Salon: null,
   Report: null,
@@ -20,13 +22,21 @@ export function defineSqlServerModels(sqlServerConnection) {
     address: {type: DataTypes.STRING, allowNull: false},
     city: {type: DataTypes.STRING, allowNull: false},
     zip: {type: DataTypes.STRING, allowNull: false},
-    dept_id: {type: DataTypes.STRING, allowNull: false},
-    region_id: {type: DataTypes.STRING},
+    code: {type: DataTypes.STRING, allowNull: false},
     date_open: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.DATE.NOW,
     },
+  });
+  const Dept = sqlServerConnection.define("depts", {
+    code: {type: DataTypes.STRING, primaryKey: true},
+    nom: {type: DataTypes.STRING, allowNull: false},
+    codeRegion: {type: DataTypes.STRING, allowNull: false},
+  });
+  const Region = sqlServerConnection.define("regions", {
+    code: {type: DataTypes.STRING, primaryKey: true},
+    nom: {type: DataTypes.STRING, allowNull: false},
   });
   const User = sqlServerConnection.define("users", {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
@@ -56,11 +66,13 @@ export function defineSqlServerModels(sqlServerConnection) {
       allowNull: false,
     },
     salon_id: {type: DataTypes.INTEGER, allowNull: false},
-    nb_etp: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
+    fte: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
     turn_around: {type: DataTypes.DECIMAL(18, 5), allowNull: false},
   });
   return (models = {
     Salon,
+    Dept,
+    Region,
     User,
     User_Salon,
     Report,
@@ -73,20 +85,13 @@ export function validateSalon(salon, cs = "post") {
     address: Joi.string(),
     city: Joi.string(),
     zip: Joi.string(),
-    dept_id: Joi.string(),
+    code: Joi.string(),
     date_open: Joi.date(),
   });
   let required = [];
   switch (cs) {
     case "post":
-      required = [
-        "name_salon",
-        "address",
-        "city",
-        "zip",
-        "dept_id",
-        "date_open",
-      ];
+      required = ["name_salon", "address", "city", "zip", "code", "date_open"];
       schema = schema.fork(required, (field) => field.required());
       return schema.validate(salon);
     case "get":
@@ -140,13 +145,13 @@ export function validateReport(report, cs = "post") {
   let schema = Joi.object({
     period: Joi.date(),
     salon_id: Joi.number(),
-    nb_etp: Joi.number(),
+    fte: Joi.number(),
     turn_around: Joi.number(),
   });
   let required = [];
   switch (cs) {
     case "post":
-      required = ["period", "salon_id", "nb_etp", "turn_around"];
+      required = ["period", "salon_id", "fte", "turn_around"];
       schema = schema.fork(required, (field) => field.required());
       return schema.validate(report);
     case "get":
