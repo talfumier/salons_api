@@ -7,13 +7,13 @@ import {getModels} from "../models/sqlServerModels.js";
 
 const router = express.Router();
 let connection = null;
-function setModels(req, res, next) {
+function setModel(req, res, next) {
   connection = getModels().connection;
   next();
 }
 router.get(
   "/raw/salon",
-  [authHandler, authValid, setModels], //raw data provided i.a.w logged-in user authorized salon(s)
+  [authHandler, authValid, setModel], //raw data provided i.a.w logged-in user authorized salon(s)
   routeHandler(async (req, res) => {
     const sql = `SELECT s.id,s.name_salon,s.city,s.code AS code_dept,d.nom AS dept,reg.nom AS region,DATE_FORMAT(s.date_open,'%Y-%m-%d') AS date_open,
       rpt.period,ROUND(rpt.fte,2) AS fte,ROUND(rpt.turn_around,2) AS 'turn-around',ROUND(rpt.turn_around/rpt.fte,0) AS 'turn-around/fte'
@@ -28,7 +28,7 @@ router.get(
 );
 router.get(
   "/dept/all",
-  [authHandler, authValid, setModels],
+  [authHandler, authValid, setModel],
   routeHandler(async (req, res) => {
     const sql = `SELECT  MAX(s.code) AS code_dept,MAX(d.nom) AS dept,MAX(reg.nom) AS region,COUNT(DISTINCT s.id) AS 'total-salons',
       ROUND(AVG(rpt.fte),2) AS 'avg-fte',SUM(ROUND(rpt.turn_around,2)) AS 'sum turn-around',COUNT(rpt.period) AS 'total-monthly-reports',
@@ -44,7 +44,7 @@ router.get(
 );
 router.get(
   "/region/all",
-  [authHandler, authValid, setModels],
+  [authHandler, authValid, setModel],
   routeHandler(async (req, res) => {
     const sql = `SELECT  MAX(reg.nom) AS region,COUNT(DISTINCT s.id) AS 'total-salons',LEFT(rpt.period,4) AS year,
       ROUND(AVG(rpt.fte),2) AS 'avg-fte',SUM(ROUND(rpt.turn_around,2)) AS 'sum turn-around',COUNT(rpt.period) AS 'total-monthly-reports'
@@ -57,5 +57,4 @@ router.get(
     res.send({status: "OK", data});
   })
 );
-
 export default router;
