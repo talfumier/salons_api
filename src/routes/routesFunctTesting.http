@@ -1,4 +1,4 @@
-@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImxhc3RfbmFtZSI6IlJlbmF1bHQiLCJmaXJzdF9uYW1lIjoiU2F2aW4iLCJlbWFpbCI6IlNhdmluLlJlbmF1bHRAaG90bWFpbC5mciIsInJvbGUiOiJhZG1pbl9zYWxvbiIsImlhdCI6MTcxNTE4NTM0MywiZXhwIjoxNzE1MjM5MzQzfQ.Mr4xqdQCavTrTR2RyGPlB5I-24uZsDh4xmfVAHvHcgA
+@user_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MCwibGFzdF9uYW1lIjoiYWRtaW4iLCJmaXJzdF9uYW1lIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGVjb2xlcy1lcHNpLm5ldCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxNTIzNDI2MCwiZXhwIjoxNzE1Mjg4MjYwfQ.b74zBZUgvAEguri11x8EMu886jaD5fYJim6k75MR0mo
 ### SALONS
 GET http://localhost:8000/api/salons
 x-auth-token:{{user_token}}
@@ -75,7 +75,7 @@ content-type: application/json
 {  
   "last_name":"MARTINEZ   ",  
   "first_name":"  Henri  ",
-  "email":"henri.talfumier@wanadoo.fr  ",
+  "email":"henri.martinez@wanadoo.fr  ",
   "pwd":"1234H67£"
 }
 ###
@@ -83,10 +83,11 @@ POST http://localhost:8000/api/register
 content-type: application/json
 
 {  
-  "last_name":"MARTINEZ   ",  
-  "first_name":"  Henri5 ",
-  "email":"henri.talfumier@gmail.com  ",
-  "pwd":"Epsi2024$"
+  "salon_id":1,
+  "last_name":"Julien",  
+  "first_name":"François",
+  "email":"françois.julien@gmail.com",
+  "pwd":"1234H67£"
 }
 ###
 GET http://localhost:8000/api/validate/27/1
@@ -98,8 +99,8 @@ POST http://localhost:8000/api/login
 content-type: application/json
 
 { 
-  "email":"henri.talfumier@wanadoo.fr",
-  "pwd":"1234H67£"
+  "email":"admin@ecoles-epsi.net",
+  "pwd":"Epsi2024$"
 }
 ###
 PATCH http://localhost:8000/api/profile
@@ -124,12 +125,12 @@ content-type: application/json
   "pwd":"Sr12345$"
 }
 ###
-GET http://localhost:8000/api/stats/raw/salon
+GET http://localhost:8000/api/reports/stats/raw/salon
 x-auth-token:{{user_token}}
 ###
-GET http://localhost:8000/api/stats/dept/all
+GET http://localhost:8000/api/reports/stats/dept/all
 x-auth-token:{{user_token}}
 ###
-GET http://localhost:8000/api/stats/region/all
+GET http://localhost:8000/api/reports/stats/region/all
 x-auth-token:{{user_token}}
 
