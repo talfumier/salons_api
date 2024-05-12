@@ -21,6 +21,12 @@ const sqlServerConnection = new Sequelize(
     logging: false,
   }
 );
+if (environment.production)
+  sqlServerConnection.dialectOptions = {
+    ssl: {
+      ca: process.env.SSL,
+    },
+  };
 //define models
 const sqlModels = defineSqlServerModels(sqlServerConnection);
 //define relationships
