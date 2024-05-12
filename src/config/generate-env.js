@@ -11,6 +11,7 @@ const setEnv = () => {
     user: '${process.env.SALONS_DB_USER}',
     userPwd: '${process.env.SALONS_DB_USERPWD}',
     db_host:'${process.env.SALONS_DB_HOST}',
+    db_port:'${process.env.SALONS_DB_PORT}',
     sha256:'${process.env.SALONS_API_SHA256}',
     salt_rounds:'${process.env.SALONS_API_SALT}',
     mail_jet_api_key:'${process.env.SALONS_API_MAILJETKEY}',

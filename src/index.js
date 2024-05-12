@@ -11,22 +11,15 @@ import {generateData, initDeptRegionData} from "./models/fakeData/dataInit.js";
 /*DEALING MITH MYSQL*/
 const sqlServerConnection = new Sequelize(
   config.db_name,
-  environment.production ? process.env.SALONS_DB_USER : environment.user,
-  environment.production ? process.env.SALONS_DB_USERPWD : environment.userPwd,
+  environment.user,
+  environment.userPwd,
   {
     dialect: "mysql",
-    host: environment.production
-      ? process.env.SALONS_DB_HOST
-      : environment.db_host,
+    host: environment.db_host,
+    port: environment.db_port,
     logging: false,
   }
 );
-if (environment.production)
-  sqlServerConnection.dialectOptions = {
-    ssl: {
-      ca: process.env.SSL,
-    },
-  };
 //define models
 const sqlModels = defineSqlServerModels(sqlServerConnection);
 //define relationships
